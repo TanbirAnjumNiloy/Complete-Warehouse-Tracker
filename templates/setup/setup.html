@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<style>
+  .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+  }
+  
+  .container > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .container img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    margin-bottom: 20px;
+  }
+  
+  .container h2 {
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .container a {
+    color: #333;
+    text-decoration: none;
+  }
+  
+  .container a:hover {
+    color: #0077b6;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .container {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+  
+    .container img {
+      max-height: 150px;
+    }
+  
+    .container h2 {
+      font-size: 18px;
+    }
+  }
+  
+</style>
+  <div class="container">
+    <div>
+      <a href="{% url 'suppliers_setup' %}">
+        <img src="{% static 'assets/img/suppliers-setup-icon.png' %}" alt="Suppliers Setup icon">
+        <h2>Suppliers Setup</h2>
+      </a>
+    </div>
+    <div>
+      <a href="{% url 'brand_setup' %}">
+        <img src="{% static 'assets/img/brand-setup-icon.png'  %}" alt="Brand Setup icon">
+        <h2>Brand Setup</h2>
+      </a>
+    </div>
+    <div>
+      <a href="{% url 'product_name' %}">
+        <img src="{% static 'assets/img/product-name-icon.png' %}" alt="Product Name icon">
+        <h2>Product Name</h2>
+      </a>
+    </div>
+    <div>
+      <a href="{% url 'market_setup' %}">
+        <img src="{% static 'assets/img/market-setup-icon.png' %}" alt="Market Setup icon">
+        <h2>Market Setup</h2>
+      </a>
+    </div>
+    <div>
+      <a href="{% url 'bank_setup' %}">
+        <img src="{% static 'assets/img/bank-setup-icon.png' %}" alt="Bank Setup icon">
+        <h2>Bank Setup</h2>
+      </a>
+    </div>
+    <div>
+      <a href="{% url 'do_setup' %}">
+        <img src="{% static 'assets/img/do-rate-setup-icon.png' %}" alt="DO Rate Setup icon">
+        <h2>DO Rate Setup</h2>
+      </a>
+    </div>
+    <div>
+      <a href="{% url 'sell_setup' %}">
+        <img src="{% static 'assets/img/sell-rate-setup-icon.png' %}" alt="Sell Rate Setup icon">
+        <h2>Sell Rate Setup</h2>
+      </a>
+    </div>
+    <div>
+      <a href="{% url 'dsr_setup' %}">
+        <img src="{% static 'assets/img/sales-man-setup-icon.png' %}" alt="sales man Setup icon">
+        <h2>DSR Setup</h2>
+      </a>
+    </div>
+    <div>
+      <a href="{% url 'salesmanager' %}">
+        <img src="{% static 'assets/img/seniorsales-man-setup-icon.png' %}" alt="sales man Setup icon">
+        <h2>SR Setup</h2>
+      </a>
+    </div>
+    
+    <div>
+      <a href="{% url 'discountsetup' %}">
+        <img src="{% static 'assets/img/discount-setup-icon.png' %}" alt="sales man Setup icon">
+        <h2>Discount Setup</h2>
+      </a>
+    </div>
+    
+    <div>
+      <a href="{% url 'collectionsetup' %}">
+        <img src="{% static 'assets/img/employee.png' %}" alt="sales man Setup icon">
+        <h2>Collection Man Setup</h2>
+      </a>
+    </div>
+    
+    <div>
+      <a href="{% url 'grams' %}">
+        <img src="{% static 'assets/img/weight.png' %}" alt="sales man Setup icon">
+        <h2>KG Setup</h2>
+      </a>
+    </div>
+    
+    
+       <div>
+      <a href="{% url 'minmax' %}">
+        <img src="{% static 'assets/img/warehouse.png' %}" alt="sales man Setup icon">
+        <h2>Min & Max</h2>
+      </a>
+    </div>
+    
+    
+    
+       <div>
+      <a href="{% url 'carton' %}">
+        <img src="{% static 'assets/img/cartoon.png' %}" alt="sales man Setup icon">
+        <h2>Carton Setup</h2>
+      </a>
+    </div>
+    
+  </div>
+
+  {% endblock %}

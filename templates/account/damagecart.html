@@ -1,0 +1,79 @@
+<table>
+   <thead>
+      <tr>
+         <th>Product Name</th>
+         <th>Date</th>
+         <th>Memo No</th>
+         <th>Sell Price</th>
+         <th>Qty</th>
+         <th>Purchase Price</th>
+         <th>Sales Amount</th>
+         <th>Purchase Amount</th>
+         <th>Action</th>
+      </tr>
+   </thead>
+   <tbody>
+      <!-- Table rows will be dynamically generated using Django template tags -->
+      {% for item in items %}
+      <tr>
+         <td>{{ item.product.name }} {{ item.product.size }}</td>
+         <td>{{ item.date }}</td>
+         <td>{{ item.mem_number }}</td>
+         <td>{{ item.sales_Price.price }}</td>
+         <td>{{ item.qty }}</td>
+         <td>{{ item.Purchase_Price.price }}</td>
+         <td>{{ item.sales_amount }}</td>
+         <td>{{ item.purchase_amount }}</td>
+         <td>
+            <a href="{% url 'remove_from_damage' item.id %}" class="btn btn-danger">Remove</a>
+         </td>
+      </tr>
+      {% endfor %}
+      <!-- Total row -->
+      <tr>
+         <td colspan="6">Total:</td>
+         <td>{{ total_sales_amount }}</td>
+         <td>{{ total_purchase_amount }}</td>
+         <td></td>
+      </tr>
+   </tbody>
+</table>
+<div class="button-container">
+   <a href="{% url 'damage' %}">
+   <button id="final" type="submit" class="button">Final</button>
+   </a>
+</div>
+<style>
+   table {
+   border-collapse: collapse;
+   width: 100%;
+   }
+   .button-container {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: 15vh; /* This will take the full height of the viewport */
+   }
+   .button {
+   background-color: green;
+   color: #fff;
+   border: none;
+   border-radius: 4px;
+   font-size: 15px;
+   cursor: pointer;
+   margin-top: 10px;
+   height: 40px;
+   width: 150px;
+   }
+   th, td {
+   text-align: left;
+   padding: 8px;
+   border-bottom: 1px solid #ddd;
+   }
+   th {
+   background-color: #f2f2f2;
+   }
+   tr:hover {
+   background-color: #f5f5f5;
+   }
+</style>

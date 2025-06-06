@@ -1,0 +1,185 @@
+<style>
+  .dropdown-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .dropdown-wrapper {
+    margin-right: 20px;
+  }
+  
+  .label {
+    display: inline-block;
+    margin-right: 10px;
+  }
+  
+  .select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 200px;
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+  
+  .buttony {
+    background-color: green;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 00px;
+    height: 40px;
+    width: 150px;
+    margin-left: 20px;
+    
+  }
+  
+  .form-group {
+    display: flex;
+    align-items: center;
+  }
+  
+
+  .table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  .table th,
+  .table td {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  .table th {
+    background-color: #f2f2f2;
+  }
+  
+  .input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100px;
+    font-size: 16px;
+  }
+  
+  .button {
+    background-color: green;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 10px;
+    float: left;
+    height: 40px;
+    width: 150px;
+  }
+  
+  .checkbox {
+    height: 18px;
+    width: 18px;
+  }
+  
+  #master-checkbox {
+    margin-right: 10px;
+  }
+  
+  .form-group {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .logout-button {
+    background-color: red;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 00px;
+    height: 40px;
+    width: 150px;
+    margin-left: 20px;
+  }
+
+
+</style>
+  <form action="{% url 'do_setup' %}" method="post" class="form">
+    {% csrf_token %}
+    <div class="dropdown-container">
+      <div class="dropdown-wrapper">
+        <label for="supplier" class="label">Supplier:</label>
+        <select id="supplier" name="supplier" class="select">
+          {% for supplier in suppliers %}
+            <option value="{{ supplier.id }}">{{ supplier.sname }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="dropdown-wrapper">
+        <label for="brand" class="label">Brand:</label>
+        <select id="brand" name="brand" class="select">
+          {% for brand in brands %}
+            <option value="{{ brand.id }}">{{ brand.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <button type="submit" class="buttony">Show Products</button>
+        <button class="logout-button"><a href="{% url 'setup' %}">Exit</a></button>
+      </div>
+    </div>
+  </form>
+
+  {% if products %}
+    <form action="{% url 'do_setup' %}" method="post" class="form">
+      {% csrf_token %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>
+              <input type="checkbox" id="master-checkbox" onClick="pro_checkall();" class="checkbox">
+            </th>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Price</th>
+            <th>Current Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+            <tr>
+              <td>
+                <input type="checkbox" name="product_ids[]" value="{{ product.id }}" class="checkbox checkbox-item">
+              </td>
+              <td>{{ product.name }}</td>
+              <td>{{ product.size }}</td>
+              <td><input type="number" name="price_{{ product.id }}" value="{{ product.price }}" step="any"  class="input"></td>
+              <td><input type="number" name="" value="{{ product.current_price }}" step="any" class="input"></td>
+              
+
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="form-group">
+        <button type="submit" name="save_price" value="true" class="button">Add to Cart</button>
+        
+      </div>
+    </form>
+  {% endif %}
+
+  <script>
+    function pro_checkall() {
+      var items = document.getElementsByClassName("checkbox-item");
+      var master = document.getElementById("master-checkbox");
+      for (var i = 0; i < items.length; i++) {
+        items[i].checked = master.checked;
+      }
+    }
+  </script>
+

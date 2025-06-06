@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 50%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+        input[type="submit"], input[type="button"] {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover, input[type="button"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="{% url 'acdiccount' %}" method="POST">
+        {% csrf_token %}
+        <div class="container">
+            <label for="supplier">Supplier:</label>
+            <select id="supplier" name="supplier">
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}">{{ supplier.sname }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="brand">Brand:</label>
+            <select id="brand" name="brand">
+                {% for brand in brands %}
+                <option value="{{ brand.id }}">{{ brand.name }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- ... -->
+             <label for="brand">Program Name:</label>
+            <select id="discount" name="discount">
+                {% for discount in discount_setups %}
+                    <option value="{{ discount.id }}" data-supplier="{{ discount.supplier.id }}" data-brand="{{ discount.brand.id }}">{{ discount.name }}</option>
+                {% endfor %}
+            </select>
+            
+
+<label for="sr">SR:</label>
+<select id="sr" name="sr">
+    {% if sr %}
+        {% for salesmanager in sr %}
+            <option value="{{ salesmanager.id }}">{{ salesmanager.name }}</option>
+        {% endfor %}
+    {% endif %}
+</select>
+
+            <!-- ... -->
+
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" name="amount" placeholder="Enter amount">
+
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+
+
+
+            <input type="submit" value="Save">
+            <a href="{% url 'account' %}">
+                <input type="button" value="Exit">
+            </a>
+        </div>
+    </form>
+</body>
+
+
+</html>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const supplierDropdown = document.getElementById('supplier');
+        const brandDropdown = document.getElementById('brand');
+        const discountDropdown = document.getElementById('discount');
+
+        function filterDiscounts() {
+            const selectedSupplier = supplierDropdown.value;
+            const selectedBrand = brandDropdown.value;
+
+            const allOptions = discountDropdown.querySelectorAll('option');
+            let visibleOptions = 0;
+
+            allOptions.forEach(option => {
+                const optionSupplier = option.getAttribute('data-supplier');
+                const optionBrand = option.getAttribute('data-brand');
+
+                if (optionSupplier === selectedSupplier && optionBrand === selectedBrand) {
+                    option.style.display = 'block';
+                    visibleOptions++;
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            if (visibleOptions === 0) {
+                discountDropdown.value = "";
+                discountDropdown.disabled = true;
+            } else {
+                discountDropdown.disabled = false;
+            }
+        }
+
+        supplierDropdown.addEventListener('change', filterDiscounts);
+        brandDropdown.addEventListener('change', filterDiscounts);
+
+        filterDiscounts();  // Call once to initialize the filtering
+    });
+</script>

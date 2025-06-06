@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Amount Table</title>
+   
+</head>
+<body>
+
+    <table id="amountTable">
+        <thead>
+            <tr>
+                <th>Fixed Amount</th>
+                <th>Input Amount</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1000</td>
+                <td><input type="number" min="0" oninput="calculateTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <tr>
+                <td>500</td>
+                <td><input type="number" min="0" oninput="calculateTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <tr>
+                <td>200</td>
+                <td><input type="number" min="0" oninput="calculateTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <tr>
+                <td>100</td>
+                <td><input type="number" min="0" oninput="calculateTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <tr>
+                <td>50</td>
+                <td><input type="number" min="0" oninput="calculateTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <tr>
+                <td>20</td>
+                <td><input type="number" min="0" oninput="calculateTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td><input type="number" min="0" oninput="calculateTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td><input type="number" min="0" oninput="calculateTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td><input type="number" min="0" oninput="calculateTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div>
+        <label for="totalSum">Total Sum: </label>
+        <input type="text" id="totalSum" readonly value="0">
+    </div>
+
+    <script>
+        function calculateTotal(inputElement) {
+            const row = inputElement.closest('tr');
+            const fixedAmount = parseFloat(row.cells[0].textContent);
+            const inputAmount = parseFloat(inputElement.value) || 0;
+            const total = fixedAmount * inputAmount;
+            row.cells[2].textContent = total.toFixed(2);
+
+            updateTotalSum();
+        }
+
+        function updateTotalSum() {
+            let sum = 0;
+            const totals = document.querySelectorAll('.total');
+            totals.forEach(total => {
+                sum += parseFloat(total.textContent);
+            });
+
+            document.getElementById('totalSum').value = sum.toFixed(2);
+        }
+    </script>
+
+</body>
+
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f3f4f6;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    thead {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #ffffff;
+    }
+
+    tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    input[type="number"] {
+        width: 100px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: right;
+        transition: border-color 0.3s;
+    }
+
+    input[type="number"]:focus {
+        border-color: #4CAF50;
+        outline: none;
+    }
+
+    #totalSum {
+        font-weight: bold;
+        color: #d32f2f;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 150px;
+        text-align: right;
+    }
+
+    div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    label {
+        margin-right: 10px;
+        font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+        table, th, td {
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 80px;
+        }
+    }
+</style>
+</html>
+
+
+

@@ -1,0 +1,167 @@
+<style>
+    input[type="text"], select {
+        padding: 8px 10px;
+        font-size: 14px;
+        border: 1px solid #007FFF;
+        border-radius: 4px;
+        width: 200px;
+        margin-bottom: 20px;
+    }
+    
+    table {
+        margin: 20px auto;
+        border-collapse: collapse;
+    }
+    
+    td {
+        padding: 8px 10px;
+    }
+    
+    fieldset {
+        border: 1px solid #007FFF;
+        padding: 20px;
+        margin: 20px auto;
+        width: 500px;
+    }
+    
+    legend {
+        font-size: 18px;
+        color: #007FFF;
+        font-weight: bold;
+        padding: 0 10px;
+    }
+    
+    input[type="submit"] {
+        padding: 8px 20px;
+        background-color: #007FFF;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .logout-button {
+      background-color: red;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      padding: 10px 30px;
+      
+      margin-top: 5px;
+    }
+
+    .home{
+      background-color: green;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      padding: 10px 30px;
+      
+    }
+    
+</style>
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <fieldset>
+      <legend> ## Product Name Setup ## </legend>
+      <p id="brand-message" style="color: red; display: none;">Select Current Brand Name</p>
+
+      <form action="{% url 'product_name' %}" method="post" id="personal_details">
+        {% csrf_token %}
+        <table align="center" cellspacing="5" id="product-table">
+          <tbody>
+            <tr>
+              <td align="right">Product Name:</td>
+              <td><input type="text" name="name" id="product_name" placeholder="Product Name" size="12" required> </td>
+
+              <td align="right">Size:</td>
+              <td><input type="text" name="size" id="size" placeholder="Product Size" size="12" required></td>
+            </tr>
+
+            <tr>
+              <td align="right">Supplier:</td>
+              <td colspan="">
+                <select name="supplier" id="supplier" required>
+                  <option value="">Select a supplier</option>
+            {% for supplier in suppliers %}
+            <option value="{{ supplier.id }}">{{ supplier.sname }}</option>
+        {% endfor %}
+                </select>
+              </td>
+
+              <td align="right">Commission:</td>
+              <td><input type="text" name="commission" id="commission" size="12" placeholder="Par Pis Com." value="00" ></td>
+
+            </tr>
+            <tr>
+              <td align="right">Brand Name:</td required>
+              <td>
+                <div id="sup_cat_load">
+                  <select name="brand" id="brand">
+                    <option value="">Select a brand</option>
+                      {% for brand in brands %}
+                      <option value="{{ brand.id }}">{{ brand.name }}</option>
+                      {% endfor %}
+                  </select> 
+                  <button type="submit" class="home" value="Save Now" id="submit"> Save </button>
+                <button class="logout-button"><a href="{% url 'setup' %}">Exit</a></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </fieldset>
+    <script>
+      // Show suppliers for selected brand
+      const brandSelect = document.querySelector('#brand');
+      const supplierSelect = document.querySelector('#supplier');
+      const suppliers = supplierSelect.querySelectorAll('option');
+    
+      // Function to set the selected supplier and brand from local storage
+      const setSelectedFromLocalStorage = () => {
+        const storedSupplier = localStorage.getItem('selectedSupplier');
+        const storedBrand = localStorage.getItem('selectedBrand');
+    
+        if (storedSupplier) {
+          supplierSelect.value = storedSupplier;
+        }
+        if (storedBrand) {
+          brandSelect.value = storedBrand;
+        }
+      };
+    
+      // Set the selected supplier and brand from local storage on page load
+      setSelectedFromLocalStorage();
+    
+      // Update the selected supplier and brand in local storage when changed
+      supplierSelect.addEventListener('change', () => {
+        localStorage.setItem('selectedSupplier', supplierSelect.value);
+      });
+    
+      brandSelect.addEventListener('change', () => {
+        const brandId = brandSelect.value;
+        localStorage.setItem('selectedBrand', brandId);
+    
+        // Hide all suppliers
+        suppliers.forEach(supplier => {
+          supplier.style.display = 'none';
+        });
+    
+        // Show suppliers for selected brand
+        suppliers.forEach(supplier => {
+          if (supplier.dataset.brand === brandId || !brandId) {
+            supplier.style.display = 'block';
+          }
+        });
+      });
+    </script>
+    
+  </body>
+</html>

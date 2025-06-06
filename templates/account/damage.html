@@ -1,0 +1,325 @@
+<style>
+  .dropdown-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .dropdown-wrapper {
+    margin-right: 20px;
+  }
+  
+  .label {
+    display: inline-block;
+    margin-right: 10px;
+  }
+  
+  .select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 200px;
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+  
+  .buttony {
+    background-color: green;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 00px;
+    height: 40px;
+    width: 150px;
+    margin-left: 20px;
+    
+  }
+  
+  .form-group {
+    display: flex;
+    align-items: center;
+  }
+  
+
+  .table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  .table th,
+  .table td {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  .table th {
+    background-color: #f2f2f2;
+  }
+  
+  .input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100px;
+    font-size: 16px;
+  }
+  
+  .button {
+    background-color: green;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 10px;
+    float: left;
+    height: 40px;
+    width: 150px;
+  }
+  
+  .checkbox {
+    height: 18px;
+    width: 18px;
+  }
+  
+  #master-checkbox {
+    margin-right: 10px;
+  }
+  
+  .form-group {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .logout-button {
+    background-color: red;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 00px;
+    height: 40px;
+    width: 150px;
+    margin-left: 20px;
+  }
+  .form-group {
+      display: flex;
+      justify-content: center;
+    }
+
+    .form-group {
+      align-items: center;
+      margin: 5px;
+      padding: 5px;
+    }
+    
+    .form-group label {
+      margin-right: 10px;
+    }
+    
+    .form-group #date {
+      margin-right: auto;
+    }
+
+
+</style>
+  <form action="{% url 'damage' %}" method="post" class="form">
+    {% csrf_token %}
+    <div class="dropdown-container">
+      <div class="dropdown-wrapper">
+        <label for="supplier" class="label">Supplier:</label>
+        <select id="supplier" name="supplier" class="select">
+          {% for supplier in suppliers %}
+            <option value="{{ supplier.id }}">{{ supplier.sname }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="dropdown-wrapper">
+        <label for="brand" class="label">Brand:</label>
+        <select id="brand" name="brand" class="select">
+          {% for brand in brands %}
+            <option value="{{ brand.id }}">{{ brand.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <button type="submit" class="buttony">Show Products</button>
+        <button class="logout-button"><a href="{% url 'setup' %}">Exit</a></button>
+      </div>
+    </div>
+  </form>
+
+  {% if products %}
+    <form action="{% url 'damagecart' %}" method="post" class="form">
+      {% csrf_token %}
+
+      <div class="form-group">
+          <label for="date" class="label" required>Date:</label>
+          <input type="date" id="date" name="date" class="input" required>
+          <label for="invoicing" class="label" required>Memo NO:</label>
+          <input style="text-align: center;" type="text" id="invoicing" name="invoicing" value="{{ next_mem_number }}" class="input">
+
+        </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="text-align: center;" >
+              <input type="checkbox" id="master-checkbox" onClick="pro_checkall();" class="checkbox">
+            </th>
+            <th style="text-align: center;" >Name</th>
+            
+            <th style="text-align: center;" >Sales  Price</th>
+            <th style="text-align: center;" >Qty</th>
+            <th style="text-align: center;" >Purchase Price</th>
+            <th style="text-align: center;" > Sales Amount  </th>
+            <th style="text-align: center;" > Purchase  Amount  </th>
+            
+            
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+            <tr>
+              <td style="text-align: center;" >
+                <input type="checkbox" name="product_ids[]" value="{{ product.id }}" class="checkbox checkbox-item">
+              </td>
+              <td style="text-align: center;" >{{ product.name }} {{ product.size }}</td>
+              
+             
+
+              <td style="text-align: center;">
+                
+                <input style="text-align: center;" id="sell_price_{{ product.id }}" step="any" type="number" name="" value="{{ product.current_pricee }}" class="input">
+            
+            </td>
+
+
+              <td style="text-align: center;">
+                
+                <input style="text-align: center;" id="qty_{{ product.id }}"  step="any" type="number" name="price_{{ product.id }}" value="{{ product.price }}" class="input">
+            
+            </td>
+
+
+              <td style="text-align: center;">
+                
+                <input style="text-align: center;" step="any" type="number" name="{{ product.id }}_price" value="{{ product.current_price }}" class="input" id="{{ product.id }}_price">
+            
+            </td>
+              <td style="text-align: center;">
+                
+                <input style="text-align: center;" id="sales_amount_{{ product.id }}" step="any" type="number" name="" value="00" class="input">
+            
+            </td>
+              <td style="text-align: center;">
+                
+                <input style="text-align: center;" id="purchase_amount_{{ product.id }}" step="any" type="number" name="" value="00" class="input">
+            
+            </td>
+
+              
+            </td>
+            
+
+              
+
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="form-group">
+        <button type="submit" name="save_price" value="true" class="button">Add to Cart</button>
+        
+      </div>
+    </form>
+  {% endif %}
+
+  <script>
+    function pro_checkall() {
+      var items = document.getElementsByClassName("checkbox-item");
+      var master = document.getElementById("master-checkbox");
+      for (var i = 0; i < items.length; i++) {
+        items[i].checked = master.checked;
+      }
+    }
+    
+    // Add this script inside your <script> tag
+    document.addEventListener("DOMContentLoaded", function () {
+      const products = Array.from(document.querySelectorAll("[id^='qty_']"));
+      products.forEach((product) => {
+        product.addEventListener("input", function (event) {
+          const id = event.target.id.split("_")[1];
+          const qty = parseFloat(event.target.value);
+          const sellPriceInput = document.getElementById(`sell_price_${id}`);
+          const purchasePriceInput = document.getElementById(`${id}_price`);
+          const salesAmountInput = document.getElementById(`sales_amount_${id}`);
+          const purchaseAmountInput = document.getElementById(`purchase_amount_${id}`);
+
+          
+          if (!isNaN(qty)) {
+            const sellPrice = parseFloat(sellPriceInput.value);
+            const purchasePrice = parseFloat(purchasePriceInput.value);
+            const salesAmount = qty * sellPrice;
+            const purchaseAmount = qty * purchasePrice;
+            
+            salesAmountInput.value = salesAmount.toFixed(2);
+            purchaseAmountInput.value = purchaseAmount.toFixed(2);
+          } else {
+            salesAmountInput.value = "";
+            purchaseAmountInput.value = "";
+          }
+        });
+      });
+    });
+    
+    function pro_checkall() {
+    var items = document.getElementsByClassName("checkbox-item");
+    var master = document.getElementById("master-checkbox");
+    for (var i = 0; i < items.length; i++) {
+      items[i].checked = master.checked;
+    }
+  }
+
+  // Add this script inside your <script> tag
+  document.addEventListener("DOMContentLoaded", function () {
+    const products = Array.from(document.querySelectorAll("[id^='qty_']"));
+    products.forEach((product) => {
+      product.addEventListener("input", function (event) {
+        const id = event.target.id.split("_")[1];
+        const qty = parseFloat(event.target.value);
+        const sellPriceInput = document.getElementById(`sell_price_${id}`);
+        const purchasePriceInput = document.getElementById(`${id}_price`);
+        const salesAmountInput = document.getElementById(`sales_amount_${id}`);
+        const purchaseAmountInput = document.getElementById(`purchase_amount_${id}`);
+        const checkbox = document.querySelector(`[name="product_ids[]"][value="${id}"]`);
+
+        if (!isNaN(qty)) {
+          const sellPrice = parseFloat(sellPriceInput.value);
+          const purchasePrice = parseFloat(purchasePriceInput.value);
+          const salesAmount = qty * sellPrice;
+          const purchaseAmount = qty * purchasePrice;
+
+          salesAmountInput.value = salesAmount.toFixed(2);
+          purchaseAmountInput.value = purchaseAmount.toFixed(2);
+          
+          if (qty > 0) {
+            checkbox.checked = true;
+          } else {
+            checkbox.checked = false;
+          }
+        } else {
+          salesAmountInput.value = "";
+          purchaseAmountInput.value = "";
+          checkbox.checked = false;
+        }
+      });
+    });
+  });
+  </script>
+  
+  

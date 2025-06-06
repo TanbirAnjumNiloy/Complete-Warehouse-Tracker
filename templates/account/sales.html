@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Page</title>
+<link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    // Set the date input to today's date
+    let today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+
+    // Initialize total sales and purchase values
+    calculateTotalSalesAndPurchase();
+});
+
+function calculateTotals(productId) {
+    // Get the input values
+    let carton = parseFloat(document.getElementById(`carton_${productId}`).value) || 0;
+    let acceptCarton = parseFloat(document.getElementById(`accept_carton_${productId}`).value) || 0;
+    let acceptPcs = parseFloat(document.getElementById(`accept_pcs_${productId}`).value) || 0;
+    let returnCarton = parseFloat(document.getElementById(`return_carton_${productId}`).value) || 0;
+    let returnPcs = parseFloat(document.getElementById(`return_pcs_${productId}`).value) || 0;
+    let stockPcs = parseFloat(document.getElementById(`stock_pcs_${productId}`).value) || 0;
+    let purchasePrice = parseFloat(document.getElementById(`purchase_price_${productId}`).value) || 0;
+    let commission = parseFloat(document.getElementById(`commission_${productId}`).value) || 0;
+    let sellPrice = parseFloat(document.getElementById(`sell_price_${productId}`).value) || 0;
+
+    // Perform the calculations
+    let totalAccept = Math.floor((carton * acceptCarton) + acceptPcs);
+    let totalReturn = Math.floor((carton * returnCarton) + returnPcs);
+    let qty = Math.floor(totalAccept - totalReturn);
+    let currentStock = Math.floor(stockPcs - qty);
+    let purchaseTotalAmount = purchasePrice * qty;
+    let totalCommission = commission * qty;
+    let salesTotalAmount = sellPrice * qty;
+
+    // Update the input fields with the calculated values
+    document.getElementById(`total_accept_${productId}`).value = totalAccept;
+    document.getElementById(`total_return_${productId}`).value = totalReturn;
+    document.getElementById(`qty_${productId}`).value = qty;
+    document.getElementById(`current_stock_${productId}`).value = currentStock;
+    document.getElementById(`purchase_total_${productId}`).value = purchaseTotalAmount.toFixed(2);
+    document.getElementById(`total_commission_${productId}`).value = totalCommission.toFixed(2);
+    document.getElementById(`sales_total_${productId}`).value = salesTotalAmount.toFixed(2);
+
+    // Automatically check the checkbox if Accept Carton or Accept Pcs has a value
+    let checkbox = document.getElementById(`checkbox_${productId}`);
+    if (acceptCarton > 0 || acceptPcs > 0) {
+        checkbox.checked = true;
+    }
+
+    // Uncheck the checkbox and display a warning if Total Return is greater than Total Accept
+    if (totalReturn > totalAccept) {
+        checkbox.checked = false;
+        alert('Total Return cannot be greater than Total Accept.');
+    }
+
+    // Uncheck the checkbox and display a warning if qty is greater than stock
+    if (qty > stockPcs) {
+        checkbox.checked = false;
+        alert('Quantity cannot exceed Stock/PCS value.');
+    }
+
+    // Uncheck the checkbox if current stock is negative
+    if (currentStock < 0) {
+        checkbox.checked = false;
+    }
+
+    // Uncheck the checkbox if qty is zero
+    if (qty === 0) {
+        checkbox.checked = false;
+    }
+
+    // Update total sales and purchase values
+    calculateTotalSalesAndPurchase();
+}
+
+
+function calculateTotalSalesAndPurchase() {
+    let salesTotalElements = document.querySelectorAll('[id^=sales_total_]');
+    let purchaseTotalElements = document.querySelectorAll('[id^=purchase_total_]');
+    let totalSalesValue = 0;
+    let totalPurchaseValue = 0;
+
+    salesTotalElements.forEach(el => {
+        totalSalesValue += parseFloat(el.value) || 0;
+    });
+
+    purchaseTotalElements.forEach(el => {
+        totalPurchaseValue += parseFloat(el.value) || 0;
+    });
+
+    document.getElementById('saleE').value = totalSalesValue.toFixed(2);
+    document.getElementById('perE').value = totalPurchaseValue.toFixed(2);
+}
+</script>
+</head>
+<body>
+
+<form action="{% url 'sales' %}" method="post" class="form">
+   {% csrf_token %}
+   <div class="dropdown-container">
+      <div class="dropdown-wrapper"> 
+         <label for="supplier" class="label">Supplier:</label>
+         <select id="supplier" name="supplier" class="select">
+            {% for supplier in suppliers %}
+            <option value="{{ supplier.id }}">{{ supplier.sname }}</option>
+            {% endfor %}
+         </select>
+      </div>
+      <div class="dropdown-wrapper">
+         <label for="brand" class="label">Brand:</label>
+         <select id="brand" name="brand" class="select">
+            {% for brand in brands %}
+            <option value="{{ brand.id }}">{{ brand.name }}</option>
+            {% endfor %}
+         </select>
+      </div>
+      <div class="form-group">
+         <button type="submit" class="buttony">Show Products</button>
+         <button class="logout-button"><a href="{% url 'setup' %}">Exit</a></button>
+      </div>
+   </div>
+</form>
+
+{% if products %}
+<div class="table-container">
+    <form action="{% url 'sales' %}" method="post" class="form">
+       {% csrf_token %}
+       <div class="form-group">
+          <label for="date" class="label" required>Date:</label>
+          <input type="date" id="date" name="date" class="input" required>
+          
+          <label for="saleE" class="label" required>In Total Sales Value:</label>
+          <input type="text" id="saleE" name="saleE" value="" class="input" readonly>
+          
+          <label for="perE" class="label" required>In Total Purchase Value:</label>
+          <input type="text" id="perE" name="perE" value="" class="input" readonly>
+          
+          <label for="invoicing" class="label" required>Memo NO:</label>
+          <input style="text-align: center;" type="text" id="invoicing" name="invoicing" value="{{ next_mem_number }}" class="input" readonly>
+       </div>
+       <table class="table">
+          <thead>
+             <tr>
+                <th style="text-align: center;"><input type="checkbox" id="master-checkbox" onClick="pro_checkall();" class="checkbox"></th>
+                <th style="text-align: center;">Name</th>
+                <th style="text-align: center;">Stock/PCS</th>
+                <th style="text-align: center;">Purchase Price</th>
+                <th style="text-align: center;">Commission</th>
+                <th style="display: none;" >Carton</th>
+                <th style="text-align: center;">Accept Carton</th>
+                <th style="text-align: center;">Accept Pcs</th>
+                <th style="text-align: center;">Return Carton</th>
+                <th style="text-align: center;">Return Pcs</th>
+                <th style="display: none;" >Total Accept</th>
+                <th style="display: none;" >Total Return</th>
+                <th style="text-align: center;">Qty</th>
+                <th style="text-align: center;">Sell Price</th>
+                <th style="text-align: center;">Sales Total Amount</th>
+                <th style="text-align: center;">Purchase Total Amount</th>
+                <th style="text-align: center;">Total Commission</th>
+                <th style="text-align: center;">Current Stock</th>
+             </tr>
+          </thead>
+          <tbody>
+             {% for product in products %}
+             <tr>
+                <td style="text-align: center;"><input type="checkbox" name="product_ids[]" value="{{ product.id }}" class="checkbox checkbox-item" id="checkbox_{{ product.id }}" readonly> </td>
+                <td style="text-align: center;">{{ product.name }} {{ product.size }}</td>
+                <td style="text-align: center;"><input id="stock_pcs_{{ product.id }}" style="text-align: center;" type="number" name="" value="{{ product.qty }}" class="input" readonly></td>
+                <td style="text-align: center;"><input style="text-align: center;" type="number" name="{{ product.id }}_price" value="{{ product.current_price }}" class="input" step="any" id="purchase_price_{{ product.id }}" readonly></td>
+                <td style="text-align: center;"><input style="text-align: center;" type="number" name="" value="{{ product.commission }}" class="input" step="any" id="commission_{{ product.id }}" readonly></td>
+                <td style="display: none;" ><input style="text-align: center;" type="number" name="{{ product.id }}_carton_qty" value="{{ product.carton_setups.first.carton|default:0 }}" class="input" step="any" id="carton_{{ product.id }}" readonly></td>
+                <td style="text-align: center;"><input type="number" id="accept_carton_{{ product.id }}" class="input" placeholder="Enter Carton" oninput="calculateTotals({{ product.id }});"></td>
+                <td style="text-align: center;"><input type="number" id="accept_pcs_{{ product.id }}" class="input" placeholder="Enter Pcs" oninput="calculateTotals({{ product.id }});"></td>
+                <td style="text-align: center;"><input type="number" id="return_carton_{{ product.id }}" class="input" placeholder="Enter Carton" oninput="calculateTotals({{ product.id }});"></td>
+                <td style="text-align: center;"><input type="number" id="return_pcs_{{ product.id }}" class="input" placeholder="Enter Pcs" oninput="calculateTotals({{ product.id }});"></td>
+                <td style="display: none;" ><input type="number" id="total_accept_{{ product.id }}" class="input" placeholder="Total Accept" readonly></td>
+                <td style="display: none;" ><input type="number" id="total_return_{{ product.id }}" class="input" placeholder="Total Return" readonly></td>
+                <td style="text-align: center;"><input id="qty_{{ product.id }}" step="any" type="number" name="price_{{ product.id }}" value="{{ product.price }}" class="input" readonly></td>
+                <td style="text-align: center;"><input id="sell_price_{{ product.id }}" step="any" type="number" name="" value="{{ product.current_pricee }}" class="input" readonly></td>
+                <td style="text-align: center;"><input id="sales_total_{{ product.id }}" step="any" type="number" name="sales_total_{{ product.id }}" value="0.00" class="input" readonly></td>
+                <td style="text-align: center;"><input id="purchase_total_{{ product.id }}" step="any" type="number" name="purchase_total_{{ product.id }}" value="0.00" class="input" readonly></td>
+                <td style="text-align: center;"><input id="total_commission_{{ product.id }}" type="number" step="any" name="total_commission_{{ product.id }}" value="0.00" class="input" readonly></td>
+                <td style="text-align: center;"><input id="current_stock_{{ product.id }}" step="any" type="number" name="current_stock_{{ product.id }}" value="0.00" class="input" readonly></td>
+             </tr>
+             {% endfor %}
+          </tbody>
+       </table>
+       <div class="form-group">
+          <button type="submit" name="save_price" value="true" class="button">Add to Cart</button>
+       </div>
+    </form>
+</div>
+{% endif %}
+</body>
+</html>
+
+
+
+
+
+<style>
+/* General Styles */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f6f8;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.form {
+    background: #fff;
+    padding: 2px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Set the form width to 100% */
+    max-width: none; /* Remove the max-width limit */
+    margin: 0; /* Remove any margin */
+    overflow: auto;
+}
+
+.dropdown-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.dropdown-wrapper {
+    flex: 1 1 45%;
+    min-width: 250px;
+}
+
+.label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #333;
+}
+
+.select, .input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.select:focus, .input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.25);
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.button, .buttony, .logout-button a {
+    padding: 12px 20px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.button:hover, .buttony:hover, .logout-button a:hover {
+    background-color: #0056b3;
+}
+
+.logout-button a {
+    background-color: #dc3545;
+}
+
+.logout-button a:hover {
+    background-color: #c82333;
+}
+
+.table-container {
+    overflow-x: auto;
+    padding: 5px; /* Add padding to ensure content doesn't stick to the edges */
+    box-sizing: border-box; /* Include padding in width calculation */
+    width: 100%; /* Set the width to 100% */
+    max-width: none; /* Remove the max-width limit */
+    margin: 10; /* Remove any margin */
+}
+
+
+
+.table {
+    width: 100%; /* Make the table fill the entire width of its container */
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+.table th, .table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+/* Add thick red border lines between specific columns */
+
+.table th:nth-child(8),
+.table td:nth-child(8),
+.table th:nth-child(11),
+.table td:nth-child(11),
+.table th:nth-child(12),
+.table td:nth-child(12) {
+    border-right: 8px solid red;
+}
+
+
+
+
+.table th {
+    background-color: #f1f1f1;
+    color: #333;
+    font-weight: bold;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.table tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+}
+
+.checkbox-item {
+    width: 18px;
+    height: 18px;
+}
+
+.input[type="text"], .input[type="number"], .input[type="date"] {
+    text-align: center;
+}
+
+input[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .dropdown-container {
+        flex-direction: column;
+    }
+
+    .form-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .button, .buttony, .logout-button a {
+        width: 100%;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .table th, .table td {
+        padding: 8px;
+    }
+
+    .button, .buttony, .logout-button a {
+        padding: 10px 15px;
+    }
+}
+
+
+</style>
+

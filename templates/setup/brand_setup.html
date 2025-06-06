@@ -1,0 +1,92 @@
+<html>
+  <head>
+    <style>
+      #personal_details {
+        width: 50%;
+        margin: 0 auto;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+      }
+      #personal_details table {
+        margin: 30px auto;
+      }
+      #personal_details td {
+        padding: 10px;
+      }
+      #personal_details input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        margin-top: 10px;
+      }
+      #personal_details select {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        margin-top: 10px;
+      }
+      #personal_details input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        background-color: #007FFF;
+        color: #fff;
+        border-radius: 5px;
+        border: none;
+        margin-top: 20px;
+        cursor: pointer;
+      }
+      .logout-button {
+        background-color: red;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+        padding: 10px 30px;
+        
+        margin-top: 5px;
+      }
+
+      .home{
+        background-color: green;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+        padding: 10px 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <form action="{% url 'brand_setup' %}" method="post" id="personal_details">
+      {% csrf_token %}
+      <table>
+        <tbody>
+          <tr>
+            <td align="right">Brand Name:</td>
+            <td><input type="text" name="brand_name" id="brand_name"></td>
+          </tr>
+          <tr>
+            <td align="right">Supplier:</td>
+            <td>
+              <select name="supplier" id="supplier_id">
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}">{{ supplier.sname }}</option>
+                {% endfor %}
+              </select>
+              <br>
+              <br>
+              <button type="submit" class="home" value="Save Now" id="submit"> Save </button>
+              <button class="logout-button"><a href="{% url 'setup' %}">Exit</a></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </body>
+</html>

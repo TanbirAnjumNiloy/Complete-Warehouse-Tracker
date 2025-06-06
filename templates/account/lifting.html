@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lifting Form</title>
+<style>
+ body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .form label {
+    font-weight: bold;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .select,
+  .input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 5px;
+  }
+
+  .buttony,
+  .button,
+  .buttonC {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 10px 20px;
+    text-decoration: none;
+    margin-right: 10px;
+  }
+
+  .buttony:hover,
+  .button:hover,
+  .buttonC:hover {
+    background-color: #45a049;
+  }
+
+  .logout-button {
+    background-color: #f44336;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .table th,
+  .table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+
+  .table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+
+  .checkbox {
+    height: 18px;
+    width: 18px;
+  }
+
+  /* Responsive styles */
+  @media screen and (max-width: 600px) {
+    .form,
+    .table,
+    .table th,
+    .table td {
+      font-size: 14px;
+    }
+
+    .buttony,
+    .button,
+    .buttonC {
+      font-size: 14px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<form action="{% url 'lifting' %}" method="post" class="form">
+  {% csrf_token %}
+  <div class="dropdown-container">
+    <div class="dropdown-wrapper">
+      <label for="supplier" class="label">Supplier:</label>
+      <select id="supplier" name="supplier" class="select">
+        {% for supplier in suppliers %}
+        <option value="{{ supplier.id }}">{{ supplier.sname }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="dropdown-wrapper">
+      <label for="brand" class="label">Brand:</label>
+      <select id="brand" name="brand" class="select">
+        {% for brand in brands %}
+        <option value="{{ brand.id }}">{{ brand.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <button type="submit" class="buttony">Show Products</button>
+      <button class="buttony"><a href="{% url 'setup' %}">Exit</a></button> 
+    </div>
+  </div>
+</form>
+
+{% if products %}
+<form action="{% url 'lifting' %}" method="post" class="form">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="date" class="label" required>Date:</label>
+    <!-- Set today's date as default -->
+    <input type="date" id="date" name="date" class="input" required>
+
+    <label for="invoicing" class="label" required>Invoicing:</label>
+    <input type="text" id="invoicing" name="invoicing" class="input" required>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th  style="text-align: center;" >
+          <input type="checkbox" id="master-checkbox" onClick="pro_checkall();" class="checkbox">
+        </th>
+        <th style="text-align: center;">Name and Size</th>
+        <th style="display: none;">Gram</th>
+
+
+        <th  style="display: none;">Carton Qty</th>    
+        <th  style="text-align: center;">Carton </th>
+        <th  style="text-align: center;">Pcs </th>
+
+
+        <th  style="text-align: center;" >Qty</th>
+        <th style="display: none;" >Total Gram</th>
+        <th  style="text-align: center;" >Total KG</th>
+        <th  style="text-align: center;" >Purchase Price</th>
+        <th  style="text-align: center;" >Total Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td  style="text-align: center;" >
+          <input  style="text-align: center;" type="checkbox" name="product_ids[]" value="{{ product.id }}" class="checkbox checkbox-item">
+        </td>
+        <td  style="text-align: center;">{{ product.name }} {{ product.size }}</td>
+        <td style="display: none;">
+          <input  style="text-align: center;" type="number" name="{{ product.id }}_gram" value="{{ product.gram_setups.first.grams|default:0 }}" step="any" class="input" id="{{ product.id }}_gram" oninput="calculateTotalGram({{ product.id }}); calculateTotalAmount({{ product.id }});" readonly>
+        </td>
+
+
+
+        <td style="display: none;">
+          <!-- Carton Qty input -->
+          <input type="number" name="{{ product.id }}_carton_qty" value="{{ product.carton_setups.first.carton|default:0 }}" class="input" oninput="calculateQty({{ product.id }});" readonly>
+        </td>
+        <td>
+          <!-- Carton input -->
+          <input type="number" name="{{ product.id }}_carton" value="" class="input" oninput="calculateQty({{ product.id }});">
+        </td>
+        <td>
+          <!-- Pcs input -->
+          <input type="number" name="{{ product.id }}_pcs" value="" class="input" oninput="calculateQty({{ product.id }});">
+        </td>
+
+
+
+        <td  style="text-align: center;" >
+          <input  style="text-align: center;" type="number" name="{{ product.id }}_qty" value="" step="1" class="input" oninput="calculateTotalGram({{ product.id }}); calculateTotalAmount({{ product.id }});" readonly>
+        </td>
+        <td  style="display: none;">
+          <input  style="text-align: center;" type="number" name="{{ product.id }}_total_gram" value="" step="any" class="input" id="{{ product.id }}_total_gram" readonly>
+        </td>
+        <td  style="text-align: center;" >
+          <input  style="text-align: center;" type="number" name="{{ product.id }}_total_kg" value="" step="any" class="input" id="{{ product.id }}_total_kg" readonly>
+        </td>
+        <td  style="text-align: center;" >
+          <input  style="text-align: center;" type="number" name="{{ product.id }}_price" step="any"  value="{{ product.current_price }}" class="input" id="{{ product.id }}_price" oninput="calculateTotalAmount({{ product.id }});" readonly>
+        </td>
+        <td  style="text-align: center;" >
+          <input  style="text-align: center;" type="number" name="{{ product.id }}_total" value="" class="input" id="{{ product.id }}_total" step="any"  readonly>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <br>
+  <div class="form-group">
+    <button type="submit" name="save_price" value="true" class="button">Add to Cart</button> 
+    <a href="{% url 'liftingcart' %}"><button type="submit" name="save_price" value="true" class="buttonC">View Cart</button></a>
+  </div>
+</form>
+{% endif %}
+
+<script>
+function autoFillCheckbox(productId) {
+    const checkbox = document.querySelector(`input[name="product_ids[]"][value="${productId}"]`);
+    if (checkbox) {
+        checkbox.checked = true;
+    }
+}
+
+function calculateQty(productId) {
+    const cartonQty = parseFloat(document.querySelector(`input[name="${productId}_carton_qty"]`).value) || 0;
+    const carton = parseFloat(document.querySelector(`input[name="${productId}_carton"]`).value) || 0;
+    const pcs = parseFloat(document.querySelector(`input[name="${productId}_pcs"]`).value) || 0;
+
+    const qty = cartonQty * carton + pcs;
+    const qtyInput = document.querySelector(`input[name="${productId}_qty"]`);
+    qtyInput.value = isNaN(qty) ? '' : Math.floor(qty);
+
+    // Calculate Total Gram
+    const gram = parseFloat(document.querySelector(`input[name="${productId}_gram"]`).value) || 0;
+    const totalGram = qty * gram;
+    const totalGramInput = document.querySelector(`input[name="${productId}_total_gram"]`);
+    totalGramInput.value = isNaN(totalGram) ? '' : totalGram.toFixed(2);
+
+    // Calculate Total KG
+    const totalKg = totalGram / 1000;
+    const totalKgInput = document.querySelector(`input[name="${productId}_total_kg"]`);
+    totalKgInput.value = isNaN(totalKg) ? '' : totalKg.toFixed(2);
+
+    // Calculate Total Amount
+    const price = parseFloat(document.getElementById(`${productId}_price`).value) || 0;
+    const totalAmount = qty * price;
+    const totalAmountInput = document.getElementById(`${productId}_total`);
+    totalAmountInput.value = isNaN(totalAmount) ? '' : totalAmount.toFixed(2);
+
+    // Auto-fill checkbox
+    autoFillCheckbox(productId);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Get today's date
+  const today = new Date().toISOString().split('T')[0];
+  // Set the value of the date input field to today's date
+  document.getElementById('date').value = today;
+});
+</script>
+
+</body>
+</html>

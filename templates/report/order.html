@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<form action="{% url 'order' %}" method="post" class="form">
+    {% csrf_token %}
+    <div class="dropdown-container">
+        <div class="dropdown-wrapper">
+            <label for="supplier" class="label">Supplier:</label>
+            <select id="supplier" name="supplier" class="select">
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}">{{ supplier.sname }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="dropdown-wrapper">
+            <label for="brand" class="label">Brand:</label>
+            <select id="brand" name="brand" class="select">
+                {% for brand in brands %}
+                <option value="{{ brand.id }}">{{ brand.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" name="show_products" value="true" class="buttony">Show Products</button> 
+
+            <button type="button" class="buttony exit-button" onclick="location.href='{% url 'setup' %}'">Exit</button>
+           
+        </div>
+    </div>
+
+
+</form>
+
+
+
+
+
+</head>
+<body>
+
+    <table>
+        <tr>
+            <th>Product Name</th>
+            <th>Stock</th>
+            <th>Minimum Value</th>
+            <th>Maximum Value</th>
+            <th>Status</th>
+        </tr>
+
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }} {{ product.size }}</td>
+                <td>{{ product.qty }}</td>
+                <td>{{ product.min_max_setup.first.minvalue|default_if_none:'No min set' }}</td>
+                <td>{{ product.min_max_setup.first.maxvalue|default_if_none:'No max set' }}</td>
+                <!-- Include data attributes for stock, min, and max -->
+                <td>
+                    <button class="status-button" 
+                            data-stock="{{ product.qty }}" 
+                            data-min="{{ product.min_max_setup.first.minvalue|default_if_none:'0' }}" 
+                            data-max="{{ product.min_max_setup.first.maxvalue|default_if_none:'0' }}">
+                        Status
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No products found for the selected criteria.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+    
+
+    </table>
+    
+
+</body>
+</html>
+
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+
+    .form, table {
+        max-width: 900px;
+        margin: 30px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .exit-button {
+    background-color: #d9534f; /* Red color for the exit button */
+}
+
+/* Additional styling for the exit button when hovered */
+.exit-button:hover {
+    background-color: #c9302c; /* A darker shade of red for hover effect */
+}
+
+    .dropdown-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .dropdown-wrapper {
+        flex-basis: 48%;
+        margin-bottom: 15px;
+    }
+
+    .label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #555;
+    }
+
+    .select, .buttony, .logout-button a {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+    }
+
+    .buttony {
+        background-color: #5cb85c;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .logout-button a {
+        text-align: center;
+        background-color: #d9534f;
+        color: white;
+        text-decoration: none;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    tr:nth-child(even){background-color: #f2f2f2;}
+
+    tr:hover {background-color: #ddd;}
+
+    .status-button {
+        padding: 5px 10px;
+        background-color: #f0ad4e;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: white;
+    }
+
+    .status-button:hover {
+        background-color: #ec971f;
+    }
+</style>
+
+
+<script>
+    window.onload = function() {
+        // This will run once the page is fully loaded
+        document.querySelectorAll('.status-button').forEach(function(button) {
+            // Get the stock, minimum, and maximum values
+            var stock = parseInt(button.dataset.stock, 10);
+            var min = parseInt(button.dataset.min, 10);
+            var max = parseInt(button.dataset.max, 10);
+    
+            // Determine the button color based on the conditions
+            if (stock < min) {
+                button.style.backgroundColor = 'red'; // Stock is less than minimum
+            } else if (stock > max) {
+                button.style.backgroundColor = 'yellow'; // Stock is more than maximum
+            } else {
+                button.style.backgroundColor = 'green'; // Stock is within the range
+            }
+        });
+    };
+    </script>

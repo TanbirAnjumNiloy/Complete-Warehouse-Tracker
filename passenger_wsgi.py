@@ -1,0 +1,1 @@
+from inventory.wsgi import application 
